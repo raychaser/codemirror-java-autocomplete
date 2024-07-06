@@ -14,38 +14,48 @@ export function getSuggestionsForParse(
     tokenStream: CommonTokenStream,
     identifierType: number) : Completion[]{
 
+    console.log('========= Getting suggestions at ', caretPosition.line, caretPosition.column);
     const tokenPosition = computeTokenPosition(parseTree, tokenStream, caretPosition);
     if (!tokenPosition) {
+        console.log('No token position, returning empty suggestions');
         return [];
     }
+    console.log('Token position', tokenPosition);
     const core = new c3.CodeCompletionCore(parser);
-    // Luckily, the Kotlin lexer defines all keywords and identifiers after operators,
-    // so we can simply exclude the first non-keyword tokens
     const ignored:number[] = [];
     core.ignoredTokens = new Set(ignored);
 
     const candidates = core.collectCandidates(tokenPosition.index);
-    console.log(candidates);
     let completions: Completion[] = [];
-
-    candidates.tokens.forEach((_, k) => {
+    candidates.tokens.forEach((tokens, k) => {
         const symbolicName = parser.vocabulary.getSymbolicName(k);
+        console.log('Names', symbolicName,
+            '|', parser.vocabulary.getDisplayName(k),
+            '|', parser.vocabulary.getLiteralName(k));
         if (symbolicName) {
             completions.push(
-                {label: symbolicName.toLowerCase(),
+                {label: symbolicName,
                   type: 'keyword'
                 });
         }
     });
 
-    completions = completions.concat(suggestIdentifiers(tokenStream, caretPosition, identifierType));
+    console.log(completions);
+    return completions;
 
-    const isIgnoredToken =
-        tokenPosition.context instanceof TerminalNode &&
-        ignored.indexOf(tokenPosition.context.symbol.type) >= 0;
-    const textToMatch = isIgnoredToken ? '' : tokenPosition.text;
-    return filterTokens(textToMatch, completions);
+    // completions = completions.concat(suggestIdentifiers(tokenStream, caretPosition, identifierType));
 
+    // FILTER BASED ON WHAT IS TYPED ALREADY FOR THE TOKEN TO WHITTLE
+    // DOWN THE LIST TO SHOW
+    //
+    // const isIgnoredToken =
+    //     tokenPosition.context instanceof TerminalNode &&
+    //     ignored.indexOf(tokenPosition.context.symbol.type) >= 0;
+    // const textToMatch = isIgnoredToken ? '' : tokenPosition.text;
+    // console.log('Text to match', textToMatch);
+    // const filteredTokens = filterTokens(textToMatch, completions);
+    // console.log('Returning completions', filteredTokens);
+    // return filteredTokens;
 }
 
 function suggestIdentifiers(tokenStream: CommonTokenStream,

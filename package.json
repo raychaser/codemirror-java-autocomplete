@@ -9,6 +9,7 @@
     "@types/react-dom": "^17.0.14",
     "@uiw/react-codemirror": "^4.5.1",
     "antlr4-c3": "^2.2.1",
+    "antlr4ng": "^3.0.1",
     "antlr4ts": "^0.5.0-alpha.4",
     "assert": "^2.0.0",
     "next": "^12.1.1",
@@ -19,18 +20,22 @@
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "add": "^2.0.6",
     "antlr4ts-cli": "^0.5.0-alpha.4",
-    "eslint": "^8.12.0"
+    "eslint": "^8.12.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "ts-node": "^10.9.2"
   },
   "scripts": {
     "dev": "next",
     "build": "next build && next export",
     "start": "next start",
-    "antlr4ts": "antlr4ts -visitor ./src/grammar/JavaLexer.g4  ./src/grammar/JavaParser.g4"
+    "antlr4ts": "antlr4ts -visitor ./src/grammar/JavaLexer.g4  ./src/grammar/JavaParser.g4 ./src/grammar/HamelinLexer.g4  ./src/grammar/HamelinParser.g4"
   },
   "eslintConfig": {
     "extends": [
