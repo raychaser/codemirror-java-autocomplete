@@ -42,7 +42,7 @@ function completionsFromCaretTokenIndex(code: string, caretTokenIndex: number) {
     parser.removeErrorListeners();
     parser.removeParseListeners();
     parser.commands();
-    const completions = getSuggestionsAtCaretTokenIndex(parser, caretTokenIndex,);
+    const completions = getSuggestionsAtCaretTokenIndex(parser, caretTokenIndex);
     return completions;
 }
 
