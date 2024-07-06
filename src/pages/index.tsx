@@ -13,9 +13,7 @@ import Editor from '../components/Editor';
 //     }
 // }
 //     `;
-const initCode = `
-from okta | search error
-`;
+const initCode = 'from okta';
 
 export default function App() {
   return <Editor initCode={initCode} language="java"/>;

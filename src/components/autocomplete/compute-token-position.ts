@@ -10,7 +10,7 @@ export function tokenPositionComputer(identifierTokenTypes: number[] = []) {
 
 export function computeTokenPosition(
     parseTree: ParseTree, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[] = []): TokenPosition| undefined {
-    
+
     if(parseTree instanceof TerminalNode) {
         return computeTokenPositionOfTerminal(parseTree, tokens, caretPosition, identifierTokenTypes);
     } else {
@@ -19,6 +19,14 @@ export function computeTokenPosition(
 }
 
 function positionOfToken(token: Token, text: string, caretPosition: CaretPosition, identifierTokenTypes: number[], parseTree: ParseTree) {
+
+    // Experimenal observation: tokenIndex is -1 if the input doesn't parse
+    // properly and Antlr inserts a "missing ..." ErrorNode thing. In this
+    // case we bail...
+    if (token.tokenIndex === -1)  {
+        return undefined;
+    }
+
     const start = token.charPositionInLine;
     const stop = token.charPositionInLine + text.length;
     if (token.line === caretPosition.line && start <= caretPosition.column && stop >= caretPosition.column) {

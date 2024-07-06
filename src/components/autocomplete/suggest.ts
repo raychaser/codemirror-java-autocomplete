@@ -1,10 +1,10 @@
-import { CommonTokenStream, Parser } from 'antlr4ts';
+import {CommonTokenStream, Parser} from 'antlr4ts';
 
 import * as c3 from 'antlr4-c3';
 import {CaretPosition} from './types';
-import { ParseTree, TerminalNode} from 'antlr4ts/tree';
-import { computeTokenPosition } from './compute-token-position';
-import { Completion } from '@codemirror/autocomplete';
+import {ParseTree} from 'antlr4ts/tree';
+import {computeTokenPosition} from './compute-token-position';
+import {Completion} from '@codemirror/autocomplete';
 
 
 export function getSuggestionsForParse(
@@ -12,7 +12,7 @@ export function getSuggestionsForParse(
     parseTree: ParseTree,
     caretPosition: CaretPosition,
     tokenStream: CommonTokenStream,
-    identifierType: number) : Completion[]{
+    identifierType: number): Completion[] {
 
     console.log('========= Getting suggestions at ', caretPosition.line, caretPosition.column);
     const tokenPosition = computeTokenPosition(parseTree, tokenStream, caretPosition);
@@ -20,13 +20,18 @@ export function getSuggestionsForParse(
         console.log('No token position, returning empty suggestions');
         return [];
     }
-    console.log('Token position', tokenPosition);
+    return getSuggestionsAtCaretTokenIndex(parser, tokenPosition.index);
+}
+
+export function getSuggestionsAtCaretTokenIndex(parser: Parser, caretTokenIndex: number) {
+    console.log('========= Getting suggestions at caret token index', caretTokenIndex);
+
     const core = new c3.CodeCompletionCore(parser);
-    const ignored:number[] = [];
+    const ignored: number[] = [];
     core.ignoredTokens = new Set(ignored);
 
-    const candidates = core.collectCandidates(tokenPosition.index);
-    let completions: Completion[] = [];
+    const candidates = core.collectCandidates(caretTokenIndex);
+    const completions: Completion[] = [];
     candidates.tokens.forEach((tokens, k) => {
         const symbolicName = parser.vocabulary.getSymbolicName(k);
         console.log('Names', symbolicName,
@@ -34,8 +39,9 @@ export function getSuggestionsForParse(
             '|', parser.vocabulary.getLiteralName(k));
         if (symbolicName) {
             completions.push(
-                {label: symbolicName,
-                  type: 'keyword'
+                {
+                    label: symbolicName,
+                    type: 'keyword'
                 });
         }
     });
@@ -59,18 +65,19 @@ export function getSuggestionsForParse(
 }
 
 function suggestIdentifiers(tokenStream: CommonTokenStream,
-    caretPosition: CaretPosition, identifierType: number): Completion[] {
+                            caretPosition: CaretPosition,
+                            identifierType: number): Completion[] {
     return tokenStream.getTokens()
-    .filter(item => item.type === identifierType
-        && item.text != null
-        && item.line !== caretPosition.line
+        .filter(item => item.type === identifierType
+            && item.text != null
+            && item.line !== caretPosition.line
         )
-    .map(item => {
-        return {
-            label: item.text || '',
-            type: 'variable'
-        };
-    });
+        .map(item => {
+            return {
+                label: item.text || '',
+                type: 'variable'
+            };
+        });
 }
 
 function filterTokens(text: string, candidates: Completion[]): Completion[] {
